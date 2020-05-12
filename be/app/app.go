@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gobuffalo/envy"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 	"html/template"
 	"net/http"
 	"os"
@@ -18,7 +19,13 @@ import (
 	"syscall"
 	"time"
 )
+
 var log *logrus.Logger
+
+var (
+	g errgroup.Group
+)
+
 func Serve() {
 	r := gin.New()
 	loadView(r)
@@ -57,7 +64,7 @@ func serverInit(r *gin.Engine) {
 	case <-ctx.Done():
 		log.Println("timeout of 1 seconds.")
 	}
-	log.Println( "Server exiting")
+	log.Println("Server exiting")
 }
 
 func initMiddleware(r *gin.Engine) {
@@ -107,4 +114,30 @@ func loadView(r *gin.Engine) {
 		},
 		DisableCache: false,
 	})
+}
+
+func ServeViaProxy() {
+
+	r := gin.New()
+	loadView(r)
+	initMiddleware(r)
+	loadRoutes(r)
+	serverProxyInit(r)
+}
+
+func serverProxyInit(r *gin.Engine) {
+	config := Libraries.ReadConfig("config")
+	for _, server := range config.Servers {
+		srv := &http.Server{
+			Addr:    fmt.Sprintf("%s:%d", server.Host, server.Port),
+			Handler: r,
+		}
+		g.Go(func() error {
+			return srv.ListenAndServe()
+		})
+	}
+	Libraries.ServeWithProxy()
+	if err := g.Wait(); err != nil {
+		log.Fatal(err)
+	}
 }
