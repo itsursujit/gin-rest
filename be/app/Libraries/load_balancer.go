@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -51,9 +52,11 @@ func ReadConfig(filename string) *Config {
 	cwd, _ := os.Getwd()
 	filepth := filepath.Join(cwd, "config")
 	viper.SetConfigName(filename) // name of config file (without extension)
-	viper.SetConfigType("yaml")   // REQUIRED if the config file does not have the extension in the name
 	viper.AddConfigPath(filepth)  // path to look for the config file in
-	viper.ReadInConfig()          // Find and read the config file
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.SetConfigType("yaml") // REQUIRED if the config file does not have the extension in the name
+	viper.ReadInConfig()        //nolint:errcheck    // Find and read the config file
 	err := viper.Unmarshal(&config)
 	if err != nil { // Handle errors reading the config file
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
@@ -61,8 +64,7 @@ func ReadConfig(filename string) *Config {
 	return config
 }
 
-func ServeWithProxy() {
-	config := ReadConfig("config")
+func ServeWithProxy(config *Config) {
 	serverList := config.Servers
 	port := config.Proxy.Port
 	for _, server := range serverList {

@@ -41,23 +41,22 @@ func HttpLogger(logger logrus.FieldLogger) gin.HandlerFunc {
 			"clientIP":   clientIP,
 			"method":     c.Request.Method,
 			"path":       path,
-			"query":       query,
+			"query":      query,
 			"referer":    referer,
 			"dataLength": dataLength,
 			"userAgent":  clientUserAgent,
-			"requestId": requestId,
+			"requestId":  requestId,
 		})
 
 		if len(c.Errors) > 0 {
 			entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
 		} else {
-			msg := "" //fmt.Sprintf("%s - %s [%s] \"%s %s\" %d %d \"%s\" \"%s\" (%s) \"%s\"", clientIP, hostname, time.Now().Format(timeFormat), c.Request.Method, path, statusCode, dataLength, referer, clientUserAgent, latency, requestId)
 			if statusCode > 499 {
-				entry.Error(msg)
+				entry.Error()
 			} else if statusCode > 399 {
-				entry.Warn(msg)
+				entry.Warn()
 			} else {
-				entry.Info(msg)
+				entry.Info()
 			}
 		}
 	}

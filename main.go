@@ -1,9 +1,8 @@
 package main
 
-import (
-	"ginrest/be/app"
-)
+import "ginrest/be/app"
 
 func main() {
-	app.ServeViaProxy()
+	app.Serve()
+	// app.ServeViaProxy(true)
 }

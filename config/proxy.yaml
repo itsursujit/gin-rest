@@ -1,0 +1,20 @@
+proxy:
+  host: "localhost"
+  port: 8080
+servers:
+  - name: "Server A"
+    scheme: http
+    host: localhost
+    port: 8081
+  - name: "Server B"
+    scheme: http
+    host: localhost
+    port: 8082
+  - name: "Server C"
+    scheme: http
+    host: localhost
+    port: 8083
+  - name: "Server D"
+    scheme: http
+    host: localhost
+    port: 8084

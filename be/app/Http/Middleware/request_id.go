@@ -2,7 +2,7 @@ package Middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/satori/go.uuid"
+	"github.com/segmentio/ksuid"
 )
 
 func RequestId() gin.HandlerFunc {
@@ -12,7 +12,7 @@ func RequestId() gin.HandlerFunc {
 
 		// Create request id with UUID4
 		if requestID == "" {
-			requestID = uuid.NewV4().String()
+			requestID = ksuid.New().String()
 		}
 
 		// Expose it for use in the application
